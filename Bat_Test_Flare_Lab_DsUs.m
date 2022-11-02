@@ -8,56 +8,34 @@ for i=1:length(img_path_list)
     image_name = img_path_list(i).name;
     disp('image_name=');
     disp(image_name);
-    processed_name = sprintf("Deflare_Ycbcr_%s",image_name);
+    processed_name = sprintf("Deflare_Lab_dsus_%s",image_name);
     disp(processed_name)
     image =  imread(strcat(file_path,image_name));
 %       figure,imshow(image);
     ori_image = image;
     lab = rgb2lab(double(ori_image)/255);
-    
-    
-    image_double = double(ori_image);
-    
-    %获取亮度,即原图的灰度拷贝
-    ima_r = image_double(:,:,1);
-    ima_g = image_double(:,:,2);
-    ima_b = image_double(:,:,3);
-    
-    
-    
-
-ima_y = 0.256789 * ima_r + 0.504129 * ima_g + 0.097906 * ima_b + 16;
-
-%获取蓝色分量
-
-ima_cb = -0.148223 * ima_r - 0.290992 * ima_g + 0.439215 * ima_b + 128;
-
-%获取红色分量
-
-ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
-
-    
-    lab_roi = lab(end-899:end,:,:);
+    lab_roi = lab(end-895:end,:,:);
     lab_a = lab(:,:,2);
-    lab_roi_a = lab_roi(:,:,2);
+    lab_roi_a_0s = lab_roi(:,:,2);
+    lab_roi_a_ds = imresize(lab_roi_a_0s,0.125,'bicubic');
+    lab_roi_a = lab_roi_a_ds;
     
-    cr_roi = ima_cr(end-899:end,:);
-    y_roi = ima_y(end-899:end,:);
-    cb_roi = ima_cb(end-899:end,:);
 %     figure,imshow(lab_roi_a*6,[-128,128]),title(processed_name);
     hold on;
     [height,width,~] = size(image);
-    x0 = width/2;
-    b1 = 900 - 48;
-    b2 = 900 - 108;
-    pline_x = 1:width;
-    a1 = -(562-58)*8/(width^2);
-    a2 = -(762-58)*8/(width^2);
+    x0 = width/2/8;
+    b1 = (896 - 48)/8;
+    b2 = (896 - 108)/8;
+    pline_x = 1:width/8;
+%     a1 = -(562-58)*8/(width^2);
+%     a2 = -(762-58)*8/(width^2);
+    a1 = -0.00538;
+    a2 = -0.00752;
     pline_y1 = 0.5*a1*(pline_x-x0).^2+b1;   
     pline_y2 = 0.5*a2*(pline_x-x0).^2+b2;   
-    blend_mask = zeros(900,width);
-    for i=1:900
-        for j=1:width
+    blend_mask = zeros(112,width/8);
+    for i=1:112
+        for j=1:width/8
             if (i>=0.5*a1*(j-x0).^2+b1)
                 blend_mask(i,j)=1;
             elseif(i<0.5*a2*(j-x0).^2+b2)
@@ -69,14 +47,14 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
             end
         end
     end
-    blend_mask_left_right = zeros(900,width);
-    left_right_depth = 50;
-    for i=1:900
-        for j=1:width
-            if j< width/2 - left_right_depth
+    blend_mask_left_right = zeros(112,width/8);
+    left_right_depth = 8;
+    for i=1:112
+        for j=1:width/8
+            if j< width/2/8 - left_right_depth
                 blend_mask_left_right(i,j) = 0;
-            elseif (j>= width/2 - left_right_depth) && (j< width/2 + left_right_depth)
-                blend_mask_left_right(i,j) = (j-(width/2-left_right_depth))/(2*left_right_depth);
+            elseif (j>= width/2/8 - left_right_depth) && (j< width/2/8 + left_right_depth)
+                blend_mask_left_right(i,j) = (j-(width/2/8-left_right_depth/8))/(2*left_right_depth);
             else
                 blend_mask_left_right(i,j) = 1;
             end
@@ -91,9 +69,8 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
     delt1 = avg_outter_1 - avg_inner_1;
     flag0 = delt0>3;
     flag1 = delt1>3;
-    th = Gradient_Seg_ROI_Part(cr_roi,a2,b2,flag0,flag1);
-    [output_color] = Suppression(cr_roi,th);  
-    lab_roi_a = cr_roi;
+    th = Gradient_Seg_ROI_Part_dsus(lab_roi_a,a2,b2,flag0,flag1);
+    [output_color] = Suppression(lab_roi_a,th);  
     if flag0 && flag1
         output_color_blend = output_color.*(blend_mask)+lab_roi_a.*(1-blend_mask);
     elseif flag0
@@ -115,18 +92,14 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
      else
          flag1 = 'False';
      end       
-    text_str0 = ['flag0=' flag0  ' flag1='  flag1];
-    
-    % --- output_color_blend --- % cr prcocessed
-    cr_adjust = output_color_blend;
-    R_adjust_roi = 1.164*(y_roi-16) + 1.596*(cr_adjust -128);
-    G_adjust_roi = 1.164*(y_roi-16) - 0.813*(cr_adjust-128) - 0.392*(cb_roi-128);
-    B_adjust_roi = 1.164*(y_roi-16) + 2.017*(cb_roi-128);
-    
-    rgb_roi_adjust = cat(3,R_adjust_roi,G_adjust_roi,B_adjust_roi);
+    text_str0 = ['flag0=' flag0  ' flag1='  flag1];   
+    lab_roi_adjust = lab_roi;
+    lab_roi_a_adjust = imresize(output_color_blend,8,'bicubic');
+    lab_roi_adjust(:,:,2) = lab_roi_a_adjust;
+    rgb_roi_adjust = lab2rgb(lab_roi_adjust);
     output_adjust = ori_image;
-    output_adjust(end-899:end,:,:) = uint8(rgb_roi_adjust);
-
+    output_adjust(end-895:end,:,:) = uint8(255*rgb_roi_adjust);
+%     output_adjust = uint8(255*rgb_roi_adjust);
     imwrite(output_adjust,processed_name);
 %     figure,imshow(output_adjust);
 %     imwrite(output_adjust,processed_name);

@@ -1,5 +1,5 @@
 clear
-file_path = './BAD/';
+file_path = './TEST/';
 close all;
 img_path_list = dir(strcat(file_path,'*.jpg'));
 for i=1:length(img_path_list)
@@ -80,7 +80,7 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
             else
                 blend_mask_left_right(i,j) = 1;
             end
-        end
+        endFlarePreJudge_regions_ROI
     end
     
 %     [avg_inner_0,avg_inner_1,avg_outter_0,avg_outter_1] = FlarePreJudge_regions_ROI(lab_a);  

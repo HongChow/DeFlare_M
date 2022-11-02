@@ -1,5 +1,5 @@
 clear
-file_path = '.\BAD\';
+file_path = './BAD/';
 close all;
 img_path_list = dir(strcat(file_path,'*.jpg'));
 for i=1:length(img_path_list)
@@ -8,17 +8,42 @@ for i=1:length(img_path_list)
     image_name = img_path_list(i).name;
     disp('image_name=');
     disp(image_name);
-    processed_name = sprintf("Deflare_Ycbcr_%s",image_name);
+    processed_name = sprintf("Deflare_crHSV_woBlend_omg.125_%s",image_name);
     disp(processed_name)
     image =  imread(strcat(file_path,image_name));
 %       figure,imshow(image);
     ori_image = image;
-    lab = rgb2lab(double(ori_image)/255);
+    lab = rgb2lab(double(ori_image)/255);    
+    
+    image_double = double(ori_image);
+    
+    %获取亮度,即原图的灰度拷贝
+    ima_r = image_double(:,:,1);
+    ima_g = image_double(:,:,2);
+    ima_b = image_double(:,:,3);   
+    
+
+ima_y = 0.256789 * ima_r + 0.504129 * ima_g + 0.097906 * ima_b + 16;
+
+%获取蓝色分量
+
+ima_cb = -0.148223 * ima_r - 0.290992 * ima_g + 0.439215 * ima_b + 128;
+
+%获取红色分量
+
+ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
+
+    
     lab_roi = lab(end-899:end,:,:);
     lab_a = lab(:,:,2);
     lab_roi_a = lab_roi(:,:,2);
+    
+    cr_roi = ima_cr(end-899:end,:);
+    y_roi = ima_y(end-899:end,:);
+    cb_roi = ima_cb(end-899:end,:);
+    
+    roi_img = ori_image(end-899:end,:,:);
 %     figure,imshow(lab_roi_a*6,[-128,128]),title(processed_name);
-    hold on;
     [height,width,~] = size(image);
     x0 = width/2;
     b1 = 900 - 48;
@@ -64,19 +89,26 @@ for i=1:length(img_path_list)
     delt1 = avg_outter_1 - avg_inner_1;
     flag0 = delt0>3;
     flag1 = delt1>3;
-    th = Gradient_Seg_ROI_Part(lab_roi_a,a2,b2,flag0,flag1);
-    [output_color] = Suppression(lab_roi_a,th);  
+    th = Gradient_Seg_ROI_Part(cr_roi,a2,b2,flag0,flag1);
+    %[output_color] = Suppression(cr_roi,th);  
+    hsv_roi = rgb2hsv(roi_img);
+    s_roi = hsv_roi(:,:,2);
+    [output_s] = Suppression_HSV(cr_roi,th,s_roi); 
+    
+    lab_roi_a = cr_roi;
+    
     if flag0 && flag1
-        output_color_blend = output_color.*(blend_mask)+lab_roi_a.*(1-blend_mask);
+        output_color_blend = output_s.*(blend_mask)+s_roi.*(1-blend_mask);
     elseif flag0
-        output_color_blend_left_right = output_color.*(1-blend_mask_left_right)+lab_roi_a.*(blend_mask_left_right);
-        output_color_blend = output_color_blend_left_right.*(blend_mask)+lab_roi_a.*(1-blend_mask);
+        output_color_blend_left_right = output_s.*(1-blend_mask_left_right)+s_roi.*(blend_mask_left_right);
+        output_color_blend = output_color_blend_left_right.*(blend_mask)+s_roi.*(1-blend_mask);
     elseif flag1
-        output_color_blend_left_right = output_color.*(blend_mask_left_right)+lab_roi_a.*(1-blend_mask_left_right);
-        output_color_blend = output_color_blend_left_right.*(blend_mask)+lab_roi_a.*(1-blend_mask);
+        output_color_blend_left_right = output_s.*(blend_mask_left_right)+s_roi.*(1-blend_mask_left_right);
+        output_color_blend = output_color_blend_left_right.*(blend_mask)+s_roi.*(1-blend_mask);
     else
-        output_color_blend = lab_roi_a;
+        output_color_blend = s_roi;
     end
+   
     if flag0
          flag0 = 'True';
      else
@@ -88,14 +120,23 @@ for i=1:length(img_path_list)
          flag1 = 'False';
      end       
     text_str0 = ['flag0=' flag0  ' flag1='  flag1];
-    lab_roi_adjust = lab_roi;
-    lab_roi_adjust(:,:,2) = output_color_blend;
-    rgb_roi_adjust = lab2rgb(lab_roi_adjust);
-    output_adjust = ori_image;
+    hsv_roi_adjust = hsv_roi;
+    hsv_roi_adjust(:,:,2) = output_color_blend;
+    % --- output_color_blend --- % cr prcocessed
+%     cr_adjust = output_color_blend;
+%     R_adjust_roi = 1.164*(y_roi-16) + 1.596*(cr_adjust -128);
+%     G_adjust_roi = 1.164*(y_roi-16) - 0.813*(cr_adjust-128) - 0.392*(cb_roi-128);
+%     B_adjust_roi = 1.164*(y_roi-16) + 2.017*(cb_roi-128);
+%     
+%     rgb_roi_adjust = cat(3,R_adjust_roi,G_adjust_roi,B_adjust_roi);
+
+
+    output_adjust = ori_image; 
+    rgb_roi_adjust = hsv2rgb(hsv_roi_adjust);
     output_adjust(end-899:end,:,:) = uint8(255*rgb_roi_adjust);
-%     output_adjust = uint8(255*rgb_roi_adjust);
+
     imwrite(output_adjust,processed_name);
-%     figure,imshow(output_adjust);
+     figure,imshow(output_adjust);
 %     imwrite(output_adjust,processed_name);
 %     figure,imshow(blend_mask)        
 %     figure,imshow(rgb_roi),title('roi');

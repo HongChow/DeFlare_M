@@ -26,9 +26,14 @@ for i=1:length(img_path_list)
     b2 = 900 - 108;
     pline_x = 1:width;
     a1 = -(562-58)*8/(width^2);
-    a2 = -(762-58)*8/(width^2);
+    a2 = -(762-58)*8/(width^2);    
     pline_y1 = 0.5*a1*(pline_x-x0).^2+b1;   
-    pline_y2 = 0.5*a2*(pline_x-x0).^2+b2;   
+    pline_y2 = 0.5*a2*(pline_x-x0).^2+b2; 
+    figure,imshow(rgb_roi),title('roi');
+    hold on;
+    plot(pline_x, pline_y1, 'b-', 'LineWidth', 3);
+    plot(pline_x,pline_y2, 'b-', 'LineWidth', 3);
+    
     blend_mask = zeros(900,width);
     for i=1:900
         for j=1:width
@@ -63,7 +68,7 @@ for i=1:length(img_path_list)
     plot(pline_x, pline_y1+(height-900), 'b-', 'LineWidth', 1);    
     plot(pline_x, pline_y2+(height-900), 'b-', 'LineWidth', 1); 
     imwrite(output_adjust,processed_name);
-%     plot(pline_x, pline_y, 'b-', 'LineWidth', 3);
-%     plot(pline_y,pline_x, 'b-', 'LineWidth', 3);
+    plot(pline_x, pline_y1, 'b-', 'LineWidth', 3);
+    plot(pline_x,pline_y2, 'b-', 'LineWidth', 3);
 %     impixelinfo;
 end  
