@@ -1,8 +1,8 @@
 clear
-file_path = './Flare_Data2/';
-%file_path = './TEST2/';
+file_path = './BAD/';
 close all;
-omg = 0.125;
+%omg = 0.125;
+omg = 0.00;
 img_path_list = dir(strcat(file_path,'*.jpg'));
 for i=1:length(img_path_list)
     disp('i=');
@@ -10,15 +10,11 @@ for i=1:length(img_path_list)
     image_name = img_path_list(i).name;
     disp('image_name=');
     disp(image_name);
-    processed_name = sprintf("Deflare_crHSV_omg.125_%s",image_name);
+    processed_name = sprintf("Deflare_crHSV_omg.00_%s",image_name);
     disp(processed_name)
     image =  imread(strcat(file_path,image_name));
 %       figure,imshow(image);
     ori_image = image;
-    [h,w,~]=size(ori_image);
-    if (h<w)
-        ori_image = rot90(ori_image);
-    end
     lab = rgb2lab(double(ori_image)/255);    
     
     image_double = double(ori_image);
@@ -50,7 +46,7 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
     
     roi_img = ori_image(end-899:end,:,:);
 %     figure,imshow(lab_roi_a*6,[-128,128]),title(processed_name);
-    [height,width,~] = size(ori_image);
+    [height,width,~] = size(image);
     x0 = width/2;
     b1 = 900 - 48;
     b2 = 900 - 108;
@@ -98,11 +94,10 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
     th = Gradient_Seg_ROI_Part(cr_roi,a2,b2,flag0,flag1);
     %[output_color] = Suppression(cr_roi,th);  
     hsv_roi = rgb2hsv(roi_img);
-    rgb_roi_back = hsv2rgb(hsv_roi);
     s_roi = hsv_roi(:,:,2);
     [output_s] = Suppression_HSV(cr_roi,th,s_roi,omg); 
     
-
+    lab_roi_a = cr_roi;
     
     if flag0 && flag1
         output_color_blend = output_s.*(blend_mask)+s_roi.*(1-blend_mask);

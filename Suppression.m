@@ -1,4 +1,4 @@
-function [output_color] = Suppression(input_color,th)
+function [output_color] = Suppression(input_color,th,omg)
 
 %     max_color = max(max(input_color));
 %     min_color = min(min(input_color));
@@ -23,7 +23,7 @@ function [output_color] = Suppression(input_color,th)
 %     output_color = keep_color + suppression_high + suppression_medium;   
 %     figure,imshow(output_color,[-128,128]),title('output_color')
 %       max_color = max(max(input_color));
-     omg = 0.05;
+     
      omg_a = omg;
      suppress_k = omg_a;
      suppress_b = (1-omg_a)*th;

@@ -1,4 +1,4 @@
-function [output_s] = Suppression_HSV(input_color,th,s_roi)
+function [output_s] = Suppression_HSV(input_color,th,s_roi,omg_s)
 
 %     max_color = max(max(input_color));
 %     min_color = min(min(input_color));
@@ -23,16 +23,10 @@ function [output_s] = Suppression_HSV(input_color,th,s_roi)
 %     output_color = keep_color + suppression_high + suppression_medium;   
 %     figure,imshow(output_color,[-128,128]),title('output_color')
 %       max_color = max(max(input_color));
-     omg = 0.05;
-     omg_a = omg;
-     suppress_k = omg_a;
-     suppress_b = (1-omg_a)*th;
-     output_color = (suppress_k*input_color+suppress_b).*(input_color>th)+(input_color).*(input_color<=th);          
+      
      
      %max_color = max(max(input_color(end-300:end,end-300:end)));
      max_color = max(max(input_color));
-     ratio_s = ones(size(input_color));
-     omg_s = 0.125;
      suppress_k = (omg_s -1)/(max_color-th);
      suppress_b = 1 - th*(omg_s-1)/(max_color - th);
      ratio_s = (suppress_k*input_color+suppress_b).*(input_color>th)+(1).*(input_color<=th); 
