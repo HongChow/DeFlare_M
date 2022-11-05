@@ -1,5 +1,6 @@
 clear
-file_path = './Flare_Data2/';
+%file_path = './Flare_Data2/';
+file_path = './BAD/';
 %file_path = './TEST2/';
 close all;
 omg = 0.125;
@@ -115,6 +116,8 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
     else
         output_color_blend = s_roi;
     end
+    output_color_blend(output_color_blend>1)=1;
+    output_color_blend(output_color_blend<0)=0;
    
     if flag0
          flag0 = 'True';

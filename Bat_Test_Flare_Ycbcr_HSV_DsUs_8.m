@@ -112,8 +112,6 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
     else
         output_color_blend = lab_roi_a;
     end
-    output_color_blend(output_color_blend>1)=1;
-    output_color_blend(output_color_blend<0)=0;
     if flag0
          flag0 = 'True';
      else
