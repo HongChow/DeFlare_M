@@ -1,15 +1,16 @@
 
-function Bat_Test_Flare_Ycbcr_HSV_DsUs_16(omg,th_delt,max_color_delt,gamma)
+function Bat_Test_Flare_Ycbcr_HSV_DsUs_16_V2(omg,th_delt,max_color_delt,gamma)
 
 clear
-file_path = './BAD/';
+file_path = './Flare_Data2/';
+%file_path = './TEST5/';
 close all;
 img_path_list = dir(strcat(file_path,'*.jpg'));
 if (nargin<1)
-    omg = 0.25;
+    omg = 0.125;
     th_delt = 0;
     max_color_delt = 0;
-    gamma = 2;
+    gamma = 1;
 else
     if (nargin~=4)
         error(message('Not sufficient paramters'));
@@ -22,11 +23,15 @@ for i=1:length(img_path_list)
     image_name = img_path_list(i).name;
     disp('image_name=');
     disp(image_name);
-    processed_name = sprintf("Deflare_crHSV_omg.125_dsus16_V2_g2_omg0.25_%s",image_name);
+    processed_name = sprintf("Deflare_crHSV_omg.125_dsus16_V2_g1_omg0.25_%s",image_name);
     disp(processed_name)
     image =  imread(strcat(file_path,image_name));
 %       figure,imshow(image);
     ori_image = image;
+    [h,w,~]=size(ori_image);   
+    if (h<w)
+        ori_image = rot90(ori_image);
+    end
     lab = rgb2lab(double(ori_image)/255);
     lab_a = lab(:,:,2);
     
@@ -57,24 +62,24 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
     roi_img = ori_image(end-895:end,:,:);
     
     roi_img_ds = imresize(roi_img,0.125/2,'bicubic');
-    
+%     
 %     figure,imshow(roi_img_ds);
 % %     figure,imshow(lab_roi_a*6,[-128,128]),title(processed_name);
 %     hold on;
-    [height,width,~] = size(image);
+     [height,width,~] = size(ori_image);
     x0 = width/2/8/2;
     b1 = (896 - 48)/8/2;
     b2 = (896 - 108)/8/2;
     pline_x = 1:width/8/2;
 %     a1 = -(562-58)*8/(width^2);
 %     a2 = -(762-58)*8/(width^2);
-    a1 = -0.00538*2;
-    a2 = -0.00752*2;
+    a1 = -0.00538*2;% -0.01076
+    a2 = -0.00752*2;% -0.01504
     pline_y1 = 0.5*a1*(pline_x-x0).^2+b1;   
     pline_y2 = 0.5*a2*(pline_x-x0).^2+b2;
 %     plot(pline_x, pline_y1, 'b-', 'LineWidth', 1);    
 %     plot(pline_x, pline_y2, 'b-', 'LineWidth', 1);
-    
+%     
     
     
     blend_mask = zeros(112/2,width/8/2);
@@ -116,8 +121,10 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
 
     %[output_color] = Suppression(cr_roi,th);  
     hsv_roi = rgb2hsv(roi_img);
+    %hsv_roi_handv2 = rgb2hsv_handV2(roi_img);
     s_roi = hsv_roi(:,:,2);
     s_roi_ds = imresize(s_roi,0.125/2,'bicubic');
+    
     th = Gradient_Seg_ROI_Part_dsus_16(cr_roi_ds,a2,b2,flag0,flag1);
     if(flag0 || flag1)
         [output_s] = Suppression_HSV_DsUs_16_V2(cr_roi_ds,th,s_roi_ds,omg,gamma,flag0,flag1);
@@ -137,8 +144,8 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
     else
         output_color_blend = lab_roi_a;
     end
-    output_color_blend(output_color_blend>1)=1;
-    output_color_blend(output_color_blend<0)=0;
+%     output_color_blend(output_color_blend>1)=1;
+%     output_color_blend(output_color_blend<0)=0;
     if flag0
          flag0 = 'True';
      else
@@ -153,11 +160,14 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
     
     % --- output_color_blend --- % cr prcocessed
           
-    s_adjust = imresize(output_color_blend,16,'bicubic');
+    s_adjust = imresize(output_color_blend,16,'bilinear');
+    s_adjust(s_adjust>1)=1;
+    s_adjust(s_adjust<0)=0;
     hsv_roi_adjust = hsv_roi;
     hsv_roi_adjust(:,:,2) = s_adjust;
     output_adjust = ori_image; 
-    rgb_roi_adjust = hsv2rgb(hsv_roi_adjust);
+    %rgb_roi_adjust = hsv2rgb(hsv_roi_adjust);
+    rgb_roi_adjust = hsv2rgb_temp(hsv_roi_adjust);
     output_adjust(end-895:end,:,:) = uint8(255*rgb_roi_adjust);
     
 %    imwrite(output_adjust,processed_name);
@@ -172,6 +182,7 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
 %     position1 = [width/2 10];
     image_show = insertText(output_adjust,position0,text_str0,'FontSize',48,'BoxColor','r','BoxOpacity',0.4,'TextColor','white');
     imwrite(image_show,processed_name);
+    figure,imshow(image_show)
 %     plot(pline_x, pline_y, 'b-', 'LineWidth', 3);
 %     plot(pline_y,pline_x, 'b-', 'LineWidth', 3);
 %     impixelinfo;

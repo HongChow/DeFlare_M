@@ -46,11 +46,11 @@ function [output_s] = Suppression_HSV_DsUs_16_V2(input_color,th,s_roi,omg_s,gamm
      disp(max_color)
      suppress_k = (omg_s -1)/(max_color-th);
      suppress_b = 1 - th*(omg_s-1)/(max_color - th);
-     t1_color = (max_color - input_color)/(max_color -th);
-     
+     %t1_color = (max_color - input_color)/(max_color -th);
+     t1_color = (max_color - input_color)/(max_color -th)*(1-omg_s)+omg_s;
      ratio_s = ((t1_color).^gamma).*(input_color>th)+(1).*(input_color<=th); 
      
-     
+     ratio_s(input_color>1.1*max_color) = 1;
               
      output_s = ratio_s.*s_roi;
      

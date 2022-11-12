@@ -1,5 +1,7 @@
 clear
-file_path = './Flare_Data2/';
+file_path = '/home/hong/Deflare/Data/flare_dataset/DL/Bad/';
+file_path = './BAD/';
+file_path = './TEST7/';
 close all;
 img_path_list = dir(strcat(file_path,'*.jpg'));
 for i=1:length(img_path_list)
@@ -69,7 +71,8 @@ for i=1:length(img_path_list)
     flag0 = delt0>3;
     flag1 = delt1>3;
     th = Gradient_Seg_ROI_Part(lab_roi_a,a2,b2,flag0,flag1);
-    [output_color] = Suppression(lab_roi_a,th,0.125);  
+    th = th*0.7;
+    [output_color] = Suppression(lab_roi_a,th,0.05);  
     if flag0 && flag1
         output_color_blend = output_color.*(blend_mask)+lab_roi_a.*(1-blend_mask);
     elseif flag0

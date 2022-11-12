@@ -1,5 +1,5 @@
 
-file_path = './Good_Data/';
+file_path = './BAD/';
 all_dis_ycbcr_pos = [];
 
 
@@ -59,26 +59,28 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
      delt1 = avg_outter_1 - avg_inner_1;
      all_dis_ycbcr_pos = [all_dis_ycbcr_pos delt0];
      all_dis_ycbcr_pos = [all_dis_ycbcr_pos delt1];
-%      if delt0>3 
-%          flag0 = 'True';
-%      else
-%          flag0 = 'False';
-%      end
-%      if delt1>3 
-%          flag1 = 'True';
-%      else
-%          flag1 = 'False';
-%      end
-% %     text_str0 = ['inner0:   ' num2str(avg_inner_0,'%0.2f') '  inner0_seg:   ' num2str(avg_inner_0_seg,'%0.2f')   ' outter0:    ' num2str(avg_outter_0,'%0.2f') '  inner1:    ' num2str(avg_inner_1,'%0.2f')    '  inner1_seg:  '     num2str(avg_inner_1_seg,'%0.2f')   '    outter1:  '    num2str(avg_outter_1,'%0.2f')];
-%     text_str0 = ['p0='  num2str(delt0,'%0.2f')  'p1='  num2str(delt1,'%0.2f')   'inner0:   ' num2str(avg_inner_0,'%0.2f')  ' outter0:    ' num2str(avg_outter_0,'%0.2f') '  inner1:    ' num2str(avg_inner_1,'%0.2f')   '  outter1:  '    num2str(avg_outter_1,'%0.2f')];
-% %    text_str0 = ['flag0=' flag0  ' flag1='  flag1];
-%     
-% %     text_str1 = ['inner1:' num2str(avg_inner_1,'%0.2f') 'outter1:' num2str(avg_outter_1,'%0.2f')];
-%     position0 = [5 10];
-% %     position1 = [width/2 10];
-%     image_show = insertText(image,position0,text_str0,'FontSize',48,'BoxColor','r','BoxOpacity',0.4,'TextColor','white');
-% % %     image_show = insertText(image,position1,text_str1,'FontSize',48,'BoxColor','r','BoxOpacity',0.4,'TextColor','white');
-%     imwrite(image_show,processed_name);
-% %     figure,imshow(image_show);
+     if delt0>3 
+         flag0 = 'True';
+     else
+         flag0 = 'False';
+     end
+     if delt1>3 
+         flag1 = 'True';
+     else
+         flag1 = 'False';
+     end
+%     text_str0 = ['inner0:   ' num2str(avg_inner_0,'%0.2f') '  inner0_seg:   ' num2str(avg_inner_0_seg,'%0.2f')   ' outter0:    ' num2str(avg_outter_0,'%0.2f') '  inner1:    ' num2str(avg_inner_1,'%0.2f')    '  inner1_seg:  '     num2str(avg_inner_1_seg,'%0.2f')   '    outter1:  '    num2str(avg_outter_1,'%0.2f')];
+    text_str0 = ['p0='  num2str(delt0,'%0.2f')  'p1='  num2str(delt1,'%0.2f')   'inner0:   ' num2str(avg_inner_0,'%0.2f')  ' outter0:    ' num2str(avg_outter_0,'%0.2f') '  inner1:    ' num2str(avg_inner_1,'%0.2f')   '  outter1:  '    num2str(avg_outter_1,'%0.2f')];
+    text_str_FLAG = ['flag0=' flag0  ' flag1='  flag1];
+    
+%     text_str1 = ['inner1:' num2str(avg_inner_1,'%0.2f') 'outter1:' num2str(avg_outter_1,'%0.2f')];
+    position0 = [5 10];
+    position_FLAG = [5 100];
+%     position1 = [width/2 10];
+    image_show = insertText(image,position0,text_str0,'FontSize',48,'BoxColor','r','BoxOpacity',0.4,'TextColor','white');
+    image_show = insertText(image_show,position_FLAG,text_str_FLAG,'FontSize',48,'BoxColor','r','BoxOpacity',0.4,'TextColor','white');
+% %     image_show = insertText(image,position1,text_str1,'FontSize',48,'BoxColor','r','BoxOpacity',0.4,'TextColor','white');
+    imwrite(image_show,processed_name);
+%     figure,imshow(image_show);
 
 end  

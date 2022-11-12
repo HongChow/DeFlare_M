@@ -24,7 +24,7 @@ function [HSV] = rgb2hsv_handV2(rgb_in)
    k = find(h < 0);
    h(k) = h(k) + 1;
    h=(~z).*h;
-   k = find(v);
+   k = find(v); % v>0 
    s(k) = (~z(k)).*s(k)./v(k);
    s(~v) = 0;
    
