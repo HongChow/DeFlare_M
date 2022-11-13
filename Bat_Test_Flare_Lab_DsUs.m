@@ -71,6 +71,8 @@ for i=1:length(img_path_list)
     flag0 = delt0>3;
     flag1 = delt1>3;
     th = Gradient_Seg_ROI_Part_dsus(lab_roi_a,a2,b2,flag0,flag1);
+    lab_roi_a_ds_seg = (lab_roi_a>=th).*1+(lab_roi_a<th).*0;
+    figure,imshow(lab_roi_a_ds_seg),title('segment lab a roi ds')
     [output_color] = Suppression(lab_roi_a,th,omg);  
     if flag0 && flag1
         output_color_blend = output_color.*(blend_mask)+lab_roi_a.*(1-blend_mask);

@@ -1,6 +1,6 @@
 function Bat_Crop_Corners_for_AI_Detection
    clear
-file_path = '/home/hong/Deflare/Python/DATA_FULL/Good/';
+file_path = '/home/hong/Deflare/Python/Data_Web/useful/';
 %file_path = './TEST6/';
 close all;
 img_path_list = dir(strcat(file_path,'*.jpg'));

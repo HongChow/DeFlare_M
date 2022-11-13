@@ -102,7 +102,7 @@ ima_cr = 0.439215 * ima_r - 0.367789 * ima_g - 0.071426 * ima_b + 128;
     hsv_roi = rgb2hsv(roi_img);
     rgb_roi_back = hsv2rgb(hsv_roi);
     s_roi = hsv_roi(:,:,2);
-    [output_s] = Suppression_HSV(lab_roi_a,th,s_roi,omg); 
+    [output_s] = Suppression_HSV(cr_roi,th,s_roi,omg); 
     
 
     
